@@ -1,12 +1,14 @@
+from time import sleep
 import pygame
 import random
 import string
 import pyttsx3
 import cv2
+from ffpyplayer.player import MediaPlayer
 from menu import main_menu
 from constants import MenuButton
 
-VERSION = "0.0.3"
+VERSION = "0.0.4"
 
 # Initialize pygame
 pygame.init()
@@ -37,8 +39,10 @@ def read_char(char):
 # Function to play a video
 def play_video(video_path):
     cap = cv2.VideoCapture(video_path)
+    player = MediaPlayer(video_path)
     while cap.isOpened():
         ret, frame = cap.read()
+        audio_frame, val = player.get_frame()
         if not ret:
             break
 
@@ -49,8 +53,12 @@ def play_video(video_path):
         frame = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
         
         # Display the frame on the Pygame window
-        win.blit(frame, (0, 0))
+        win.blit(frame, (-150, 0))
         pygame.display.update()
+
+        # if val != 'eof' and audio_frame is not None:
+        #     # Get the audio frame as a NumPy array
+        #     img, t = audio_frame
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -70,7 +78,7 @@ while True:
         break
     elif menuButton == MenuButton.START:
         running = True
-        REWARD_THRESHOLD = 10
+        REWARD_THRESHOLD = 1
         reward_counter = 0
 
         char = random.choice(characters)  # Get the first random character
@@ -89,5 +97,7 @@ while True:
                             reward_counter = 0
                         char = random.choice(characters)  # Get a new random character
                         display_char(char)  # Display the new character
+                        read_char(char)  # Read out the first character
+                    else:
                         read_char(char)  # Read out the first character
 pygame.quit()

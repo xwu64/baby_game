@@ -2,3 +2,4 @@ opencv-python==4.10.0.84
 pyttsx3==2.90
 pygame==2.6.0
 py3-tts==3.5
+ffpyplayer==4.5.1
