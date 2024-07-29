@@ -1,14 +1,15 @@
 from time import sleep
+from exit import ExitType, ExitUnit
 import pygame
 import random
-import string
 import pyttsx3
 import cv2
 from ffpyplayer.player import MediaPlayer
 from menu import main_menu
 from constants import MenuButton
+from level import select_level
 
-VERSION = "0.0.4"
+VERSION = "0.0.5"
 
 # Initialize pygame
 pygame.init()
@@ -69,18 +70,25 @@ def play_video(video_path):
                 cap.release()
                 return
 
-# Create a list of characters A-Z and 0-9
-characters = list(string.digits) + list(string.ascii_uppercase) 
 
 while True:
-    menuButton = main_menu(win, width, height)
-    if menuButton == MenuButton.QUIT:
+    rtn_item = main_menu(win, width, height)
+
+    if rtn_item.exit_type == ExitType.QUIT or rtn_item.rtn_msg.type == MenuButton.QUIT:
         break
-    elif menuButton == MenuButton.START:
+    elif rtn_item.rtn_msg.type == MenuButton.START:
+        select_rtn = select_level(win, width, height)
+        if select_rtn.exit_type == ExitType.QUIT:
+            continue
+        else:
+            level_setting = select_rtn.rtn_msg
+
         running = True
-        REWARD_THRESHOLD = 1
+        REWARD_THRESHOLD = 10
         reward_counter = 0
 
+        # Create a list of characters A-Z and 0-9
+        characters = level_setting.dictionary
         char = random.choice(characters)  # Get the first random character
         display_char(char)  # Display the first character
         read_char(char)  # Read out the first character
